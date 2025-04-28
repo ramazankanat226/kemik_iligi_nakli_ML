@@ -22,7 +22,7 @@ with open("KNN_model.pkl", "rb") as f:
 
 # Başarı yüzdeleri
 model_scores = {
-    "SVM": 88.37,
+    "SVM": 68.42,
     "Random Forest": 97.37,
     "Linear Regression": 69.77,
     "KNN": 71.05
