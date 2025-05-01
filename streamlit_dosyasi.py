@@ -4,7 +4,6 @@ import pickle
 import matplotlib.pyplot as plt
 
 # Model dosyalarını oku
-# Linear Regression ve KNN dict şeklinde kaydedilmişti!
 with open("SVM_model.pkl", "rb") as f:
     svm_model = pickle.load(f)
 
@@ -14,9 +13,8 @@ with open("random_forest_model.pkl", "rb") as f:
 with open("linear_regression_model.pkl", "rb") as f:
     lr_model= pickle.load(f)  
 
-
 with open("KNN_model.pkl", "rb") as f:
-    knn_model_data = pickle.load(f)  # Dikkat buraya: dict açıyoruz
+    knn_model_data = pickle.load(f)
     knn_model = knn_model_data['model']
     knn_features = knn_model_data['feature_names']
 
@@ -28,10 +26,9 @@ model_scores = {
     "KNN": 71.05
 }
 
-# Başlık
 st.title("📊 Modellerin Doğruluk Oranları")
 
-# Matplotlib ile bar chart çizelim
+# Bar chart
 fig, ax = plt.subplots()
 models = list(model_scores.keys())
 scores = list(model_scores.values())
@@ -52,96 +49,86 @@ st.divider()
 st.title("🔍 Model Seçimi ve Tahmin")
 
 # Model seçimi
-model_name = st.selectbox(
-    "Kullanmak istediğiniz modeli seçin:",
-    ("SVM", "Random Forest", "Linear Regression", "KNN")
-)
+model_name = st.selectbox("Kullanmak istediğiniz modeli seçin:", ("SVM", "Random Forest", "Linear Regression", "KNN"))
 
 # Veri setini yükle
 data = pd.read_csv("temizlenmis_veri.csv")
 features = data.columns.tolist()
 
-# Bu iki sütunu çıkartalım
+# Tahmin değişkenlerini çıkar
 for col in ['survival_status', 'survival_time']:
     if col in features:
         features.remove(col)
 
-# Türkçe açıklamalar sözlüğü (diğer sütunlar da açıklanabilir)
-feature_descriptions = {
-    "Recipientgender": "Alıcının Cinsiyeti (0: Kadın, 1: Erkek)",
-    "Stemcellsource": "Kök Hücre Kaynağı (0: Kemik iliği, 1: Periferik)",
-    "Donorage": "Bağışçı Yaşı",
-    "Donorage35": "Bağışçı 35 Yaş Üstü mü? (0: Hayır, 1: Evet)",
-    "IIIV": "EBMT Risk Skoru (II veya IV arası)"
+# Açıklama eşleşmeleri
+feature_explanations = {
+    "donorage": "Bağışçı Yaşı",
+    "donorgender": "Bağışçı Cinsiyeti",
+    "donorweight": "Bağışçı Kilosu",
+    "donorheight": "Bağışçı Boyu",
+    "recipientage": "Alıcının Yaşı",
+    "recipientgender": "Alıcının Cinsiyeti",
+    "recipientweight": "Alıcının Kilosu",
+    "recipientheight": "Alıcının Boyu",
+    "hla_match_score": "HLA Uyum Skoru",
+    "wbc": "Lökosit Sayısı (WBC)",
+    "hb": "Hemoglobin",
+    "plt": "Trombosit Sayısı (PLT)",
+    "hct": "Hematokrit",
+    "bilirubin": "Bilirubin Seviyesi",
+    "creatinine": "Kreatinin Seviyesi",
+    "albumin": "Albümin Seviyesi",
+    "diagnosis_score": "Teşhis Skoru",
+    "graft_source": "Graft Kaynağı",
+    "conditioning_intensity": "Koşullandırma Yoğunluğu",
+    "comorbidity_index": "Eşlik Eden Hastalık Endeksi"
 }
 
 # Özellikleri kullanıcıdan al
 st.subheader("🛠️ Özellikleri Girin:")
-
 user_input = []
-
 for feature in features:
-    if feature not in data.columns:
-        continue  # Eğer feature veri setinde yoksa atla
-
     min_val = float(data[feature].min())
     max_val = float(data[feature].max())
-
-    label = f"{feature} ({feature_descriptions.get(feature, feature)})"
-
-    # Eğer sayısal ama küçük sınırlı değerlerse (örneğin 0-1 gibi), tam sayı slider
-    if data[feature].dtype == "int64" and max_val - min_val <= 10:
-        value = st.slider(label, int(min_val), int(max_val), step=1)
-    else:
-        value = st.slider(label, min_val, max_val, step=0.1)
-
+    explanation = feature_explanations.get(feature.lower(), "")
+    
+    label = f"{feature} ({explanation})" if explanation else feature
+    value = st.slider(label, min_value=min_val, max_value=max_val, step=0.1, value=(min_val + max_val) / 2)
     user_input.append(value)
 
-
-# Tahmin butonu
+# Tahmin
 if st.button("🚀 Tahmin Yap"):
     input_df = pd.DataFrame([user_input], columns=features)
 
     if model_name in ["Linear Regression", "KNN"]:
-        # One-Hot Encoding uygula
         encoded_input = pd.get_dummies(input_df)
 
-        # Modele göre expected_features belirle
         if model_name == "Linear Regression":
             expected_features = lr_model.feature_names_in_
-        elif model_name == "KNN":
+        else:
             expected_features = knn_features
 
-        # Eksik olan feature'ları sıfırla
         for col in expected_features:
             if col not in encoded_input.columns:
                 encoded_input[col] = 0
 
-        # Sadece gerekli feature'ları ve doğru sırada al
         encoded_input = encoded_input[expected_features]
 
-        # Tahmin
         if model_name == "Linear Regression":
             prediction = lr_model.predict(encoded_input)
-        elif model_name == "KNN":
+        else:
             prediction = knn_model.predict(encoded_input)
-
     else:
-        # Random Forest ve SVM için
         if model_name == "Random Forest":
             prediction = rf_model.predict(input_df)
-        elif model_name == "SVM":
+        else:
             prediction = svm_model.predict(input_df)
 
-        # Tahmin yaptıktan sonra
     st.subheader("🎯 Tahmin Sonucu:")
-    
     tahmin = prediction[0]
-    
     if tahmin == 0:
         st.success("0 - Hasta Ölmeyecek (Yaşayacak) ✅")
     elif tahmin == 1:
         st.error("1 - Hasta Maalesef Ölecek ❌")
     else:
         st.warning(f"{tahmin} - Bilinmeyen bir sonuç!")
-
