@@ -88,13 +88,19 @@ feature_explanations = {
 st.subheader("🛠️ Özellikleri Girin:")
 user_input = []
 for feature in features:
-    min_val = float(data[feature].min())
-    max_val = float(data[feature].max())
     explanation = feature_explanations.get(feature.lower(), "")
-    
     label = f"{feature} ({explanation})" if explanation else feature
-    value = st.slider(label, min_value=min_val, max_value=max_val, step=0.1, value=(min_val + max_val) / 2)
+
+    try:
+        min_val = float(data[feature].min())
+        max_val = float(data[feature].max())
+        value = st.slider(label, min_value=min_val, max_value=max_val, step=0.1, value=(min_val + max_val)/2)
+    except ValueError:
+        # Sayıya çevrilemeyen sütun varsa default 0-1 slider koy
+        value = st.slider(label + " (sayısal değil, varsayılan aralık)", min_value=0.0, max_value=1.0, step=1.0)
+    
     user_input.append(value)
+
 
 # Tahmin
 if st.button("🚀 Tahmin Yap"):
