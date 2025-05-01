@@ -24,7 +24,7 @@ with open("KNN_model.pkl", "rb") as f:
 model_scores = {
     "SVM": 68.42,
     "Random Forest": 97.37,
-    "Linear Regression": 71.05,
+    "Linear Regression": 68.97,
     "KNN": 71.05
 }
 
