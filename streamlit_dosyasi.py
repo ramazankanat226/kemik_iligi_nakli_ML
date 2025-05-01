@@ -66,7 +66,7 @@ for col in ['survival_status', 'survival_time']:
     if col in features:
         features.remove(col)
 
-# Özellik açıklamaları sözlüğü
+# Türkçe açıklamalar sözlüğü (diğer sütunlar da açıklanabilir)
 feature_descriptions = {
     "Recipientgender": "Alıcının Cinsiyeti (0: Kadın, 1: Erkek)",
     "Stemcellsource": "Kök Hücre Kaynağı (0: Kemik iliği, 1: Periferik)",
@@ -79,20 +79,24 @@ feature_descriptions = {
 st.subheader("🛠️ Özellikleri Girin:")
 
 user_input = []
+
 for feature in features:
+    if feature not in data.columns:
+        continue  # Eğer feature veri setinde yoksa atla
+
     min_val = float(data[feature].min())
     max_val = float(data[feature].max())
 
     label = f"{feature} ({feature_descriptions.get(feature, feature)})"
 
+    # Eğer sayısal ama küçük sınırlı değerlerse (örneğin 0-1 gibi), tam sayı slider
     if data[feature].dtype == "int64" and max_val - min_val <= 10:
-        # Kategorik gibi görünenler için int slider
         value = st.slider(label, int(min_val), int(max_val), step=1)
     else:
-        # Sürekli değişkenler için float slider
         value = st.slider(label, min_val, max_val, step=0.1)
-    
+
     user_input.append(value)
+
 
 # Tahmin butonu
 if st.button("🚀 Tahmin Yap"):
