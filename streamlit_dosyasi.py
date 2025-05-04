@@ -97,7 +97,7 @@ for feature in features:
         value = st.slider(label, min_value=min_val, max_value=max_val, step=0.1, value=(min_val + max_val)/2)
     except ValueError:
         # Sayıya çevrilemeyen sütun varsa default 0-1 slider koy
-        value = st.slider(label +, min_value=0.0, max_value=1.0, step=1.0)
+        value = st.slider(label , min_value=0.0, max_value=1.0, step=1.0)
     
     user_input.append(value)
 
