@@ -26,7 +26,7 @@ model_scores = {
     "KNN": 71.05
 }
 
-st.title("📊 Modellerin Doğruluk Oranları")
+st.title("Modellerin Doğruluk Oranları")
 
 # Bar chart
 fig, ax = plt.subplots()
@@ -85,7 +85,7 @@ feature_explanations = {
 }
 
 # Özellikleri kullanıcıdan al
-st.subheader("🛠️ Özellikleri Girin:")
+st.subheader("Özellikleri Girin:")
 user_input = []
 for feature in features:
     explanation = feature_explanations.get(feature.lower(), "")
@@ -103,7 +103,7 @@ for feature in features:
 
 
 # Tahmin
-if st.button("🚀 Tahmin Yap"):
+if st.button("Tahmin Yap"):
     input_df = pd.DataFrame([user_input], columns=features)
 
     if model_name in ["Linear Regression", "KNN"]:
@@ -130,7 +130,7 @@ if st.button("🚀 Tahmin Yap"):
         else:
             prediction = svm_model.predict(input_df)
 
-    st.subheader("🎯 Tahmin Sonucu:")
+    st.subheader("Tahmin Sonucu:")
     tahmin = prediction[0]
     if tahmin == 0:
         st.success("0 - Hasta Ölmeyecek (Yaşayacak) ✅")
