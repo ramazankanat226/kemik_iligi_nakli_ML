@@ -46,7 +46,7 @@ st.pyplot(fig)
 
 st.divider()
 
-st.title("🔍 Model Seçimi ve Tahmin")
+st.title("Model Seçimi ve Tahmin")
 
 # Model seçimi
 model_name = st.selectbox("Kullanmak istediğiniz modeli seçin:", ("SVM", "Random Forest", "Linear Regression", "KNN"))
