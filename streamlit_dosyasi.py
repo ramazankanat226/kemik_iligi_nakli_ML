@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 import matplotlib.pyplot as plt
 
-# Model dosyalarını oku
+
 with open("SVM_model.pkl", "rb") as f:
     svm_model = pickle.load(f)
 
@@ -18,7 +18,6 @@ with open("KNN_model.pkl", "rb") as f:
     knn_model = knn_model_data['model']
     knn_features = knn_model_data['feature_names']
 
-# Başarı yüzdeleri
 model_scores = {
     "SVM": 68.42,
     "Random Forest": 97.37,
@@ -48,10 +47,8 @@ st.divider()
 
 st.title("Model Seçimi ve Tahmin")
 
-# Model seçimi
 model_name = st.selectbox("Kullanmak istediğiniz modeli seçin:", ("SVM", "Random Forest", "Linear Regression", "KNN"))
 
-# Veri setini yükle
 data = pd.read_csv("temizlenmis_veri.csv")
 features = data.columns.tolist()
 
@@ -84,7 +81,6 @@ feature_explanations = {
     "comorbidity_index": "Eşlik Eden Hastalık Endeksi"
 }
 
-# Özellikleri kullanıcıdan al
 st.subheader("Özellikleri Girin:")
 user_input = []
 for feature in features:
@@ -96,13 +92,12 @@ for feature in features:
         max_val = float(data[feature].max())
         value = st.slider(label, min_value=min_val, max_value=max_val, step=0.1, value=(min_val + max_val)/2)
     except ValueError:
-        # Sayıya çevrilemeyen sütun varsa default 0-1 slider koy
+        
         value = st.slider(label , min_value=0.0, max_value=1.0, step=1.0)
     
     user_input.append(value)
 
 
-# Tahmin
 if st.button("Tahmin Yap"):
     input_df = pd.DataFrame([user_input], columns=features)
 
